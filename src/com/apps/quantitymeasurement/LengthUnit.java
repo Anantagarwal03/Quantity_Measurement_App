@@ -6,9 +6,23 @@ public enum LengthUnit {
     INCHES(1.0),
     CENTIMETERS(0.393701);
 
-    public final double conversionFactor;
+    private final double conversionFactor;
 
     LengthUnit(double conversionFactor) {
         this.conversionFactor = conversionFactor;
+    }
+
+    /**
+     * Converts a value from this unit to the base unit (Inches).
+     */
+    public double convertToBaseUnit(double value) {
+        return value * this.conversionFactor;
+    }
+
+    /**
+     * Converts a value from the base unit (Inches) to this unit.
+     */
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / this.conversionFactor;
     }
 }

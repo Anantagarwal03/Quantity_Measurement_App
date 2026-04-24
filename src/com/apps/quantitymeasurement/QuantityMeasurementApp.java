@@ -15,28 +15,26 @@ public class QuantityMeasurementApp {
             this.unit = unit;
         }
 
-        // --- UC6: Implicit Target Unit (Result in unit of first operand) ---
-        public Quantity add(Quantity other) {
-            return add(other, this.unit);
+        // Delegate conversion to the unit class
+        public double convertTo(LengthUnit targetUnit) {
+            if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
+            double baseValue = this.unit.convertToBaseUnit(this.value);
+            return targetUnit.convertFromBaseUnit(baseValue);
         }
 
-        // --- UC7: Explicit Target Unit Specification ---
+        // Delegate addition math to unit conversion methods
         public Quantity add(Quantity other, LengthUnit targetUnit) {
-            if (other == null) throw new IllegalArgumentException("Operand cannot be null");
-            if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
+            if (other == null || targetUnit == null) throw new IllegalArgumentException("Parameters cannot be null");
 
-            // Convert both to base unit (Inches) and sum
-            double sumInBase = (this.value * this.unit.conversionFactor) +
-                    (other.value * other.unit.conversionFactor);
+            double sumInBase = this.unit.convertToBaseUnit(this.value) +
+                    other.unit.convertToBaseUnit(other.value);
 
-            // Convert sum to the specified target unit
-            double finalValue = sumInBase / targetUnit.conversionFactor;
+            double finalValue = targetUnit.convertFromBaseUnit(sumInBase);
             return new Quantity(finalValue, targetUnit);
         }
 
-        public double convertTo(LengthUnit targetUnit) {
-            if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
-            return (this.value * this.unit.conversionFactor) / targetUnit.conversionFactor;
+        public Quantity add(Quantity other) {
+            return add(other, this.unit);
         }
 
         @Override
@@ -44,9 +42,11 @@ public class QuantityMeasurementApp {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             Quantity other = (Quantity) obj;
-            // Round to 3 decimal places for precision comparison in UC7
-            return Math.abs((this.value * this.unit.conversionFactor) -
-                    (other.value * other.unit.conversionFactor)) < 0.001;
+
+            double v1 = this.unit.convertToBaseUnit(this.value);
+            double v2 = other.unit.convertToBaseUnit(other.value);
+
+            return Math.abs(v1 - v2) < 0.001;
         }
 
         @Override
@@ -56,11 +56,9 @@ public class QuantityMeasurementApp {
     }
 
     public static void main(String[] args) {
-        Quantity oneFoot = new Quantity(1.0, LengthUnit.FEET);
-        Quantity twelveInches = new Quantity(12.0, LengthUnit.INCHES);
-
-        // UC7 Demo: Add and get result in Yards
-        Quantity resultInYards = oneFoot.add(twelveInches, LengthUnit.YARDS);
-        System.out.println("1 Foot + 12 Inches = " + resultInYards); // Expected: ~0.667 YARDS
+        Quantity oneYard = new Quantity(1.0, LengthUnit.YARDS);
+        // Demonstrating delegation:
+        System.out.println("1 Yard in Feet: " + oneYard.convertTo(LengthUnit.FEET));
+        System.out.println("1 Yard + 3 Feet in Yards: " + oneYard.add(new Quantity(3.0, LengthUnit.FEET), LengthUnit.YARDS));
     }
 }
