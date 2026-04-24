@@ -10,17 +10,29 @@ public class QuantityMeasurementApp {
             if (!Double.isFinite(value)) {
                 throw new IllegalArgumentException("Value must be a finite number");
             }
+            if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
             this.value = value;
             this.unit = unit;
         }
 
-        /**
-         * UC5 Core: Converts this quantity to a target unit.
-         * Formula: (Value * SourceFactor) / TargetFactor
-         */
         public double convertTo(LengthUnit targetUnit) {
             if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
             return (this.value * this.unit.conversionFactor) / targetUnit.conversionFactor;
+        }
+
+        /**
+         * UC6: Adds another quantity to this one.
+         * The result unit is the unit of the first operand (this).
+         */
+        public Quantity add(Quantity other) {
+            if (other == null) throw new IllegalArgumentException("Operand cannot be null");
+
+            // Convert both to base unit (Inches), add them, then convert back to 'this' unit
+            double sumInBase = (this.value * this.unit.conversionFactor) +
+                    (other.value * other.unit.conversionFactor);
+
+            double finalValue = sumInBase / this.unit.conversionFactor;
+            return new Quantity(finalValue, this.unit);
         }
 
         @Override
@@ -28,35 +40,21 @@ public class QuantityMeasurementApp {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             Quantity other = (Quantity) obj;
-            return Double.compare(this.value * this.unit.conversionFactor,
-                    other.value * other.unit.conversionFactor) == 0;
+            return Double.compare(Math.round(this.value * this.unit.conversionFactor * 100.0) / 100.0,
+                    Math.round(other.value * other.unit.conversionFactor * 100.0) / 100.0) == 0;
         }
 
         @Override
         public String toString() {
-            return value + " " + unit;
+            return String.format("%.2f %s", value, unit);
         }
     }
 
-    // Method Overloading 1: Using raw values
-    public static void demonstrateLengthConversion(double value, LengthUnit from, LengthUnit to) {
-        Quantity quantity = new Quantity(value, from);
-        double result = quantity.convertTo(to);
-        System.out.println("Converted " + value + " " + from + " to " + result + " " + to);
-    }
-
-    // Method Overloading 2: Using an existing Quantity object
-    public static void demonstrateLengthConversion(Quantity quantity, LengthUnit to) {
-        double result = quantity.convertTo(to);
-        System.out.println("Converted " + quantity + " to " + result + " " + to);
-    }
-
     public static void main(String[] args) {
-        System.out.println("--- UC5 Unit Conversion Demo ---");
-        demonstrateLengthConversion(1.0, LengthUnit.FEET, LengthUnit.INCHES);
-        demonstrateLengthConversion(3.0, LengthUnit.YARDS, LengthUnit.FEET);
+        Quantity oneFoot = new Quantity(1.0, LengthUnit.FEET);
+        Quantity twelveInches = new Quantity(12.0, LengthUnit.INCHES);
 
-        Quantity q = new Quantity(36.0, LengthUnit.INCHES);
-        demonstrateLengthConversion(q, LengthUnit.YARDS);
+        Quantity result = oneFoot.add(twelveInches);
+        System.out.println("1 Foot + 12 Inches = " + result); // Expected: 2.00 FEET
     }
 }

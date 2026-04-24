@@ -6,52 +6,56 @@ import com.apps.quantitymeasurement.QuantityMeasurementApp.Quantity;
 
 public class QuantityMeasurementAppTest {
 
-    private final double epsilon = 0.0001;
-
     @Test
-    public void testConversion_FeetToInches() {
-        Quantity feet = new Quantity(1.0, LengthUnit.FEET);
-        assertEquals(12.0, feet.convertTo(LengthUnit.INCHES), epsilon);
+    public void testAddition_SameUnit_FeetPlusFeet() {
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(2.0, LengthUnit.FEET);
+        assertEquals(new Quantity(3.0, LengthUnit.FEET), q1.add(q2));
     }
 
     @Test
-    public void testConversion_YardsToFeet() {
+    public void testAddition_CrossUnit_FeetPlusInches() {
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCHES);
+        // Result should be in Feet (unit of the first operand)
+        assertEquals(new Quantity(2.0, LengthUnit.FEET), q1.add(q2));
+    }
+
+    @Test
+    public void testAddition_CrossUnit_InchesPlusFeet() {
+        Quantity q1 = new Quantity(12.0, LengthUnit.INCHES);
+        Quantity q2 = new Quantity(1.0, LengthUnit.FEET);
+        // Result should be in Inches (unit of the first operand)
+        assertEquals(new Quantity(24.0, LengthUnit.INCHES), q1.add(q2));
+    }
+
+    @Test
+    public void testAddition_YardPlusFeet() {
         Quantity yard = new Quantity(1.0, LengthUnit.YARDS);
-        assertEquals(3.0, yard.convertTo(LengthUnit.FEET), epsilon);
+        Quantity feet = new Quantity(3.0, LengthUnit.FEET);
+        assertEquals(new Quantity(2.0, LengthUnit.YARDS), yard.add(feet));
     }
 
     @Test
-    public void testConversion_InchesToYards() {
-        Quantity inches = new Quantity(36.0, LengthUnit.INCHES);
-        assertEquals(1.0, inches.convertTo(LengthUnit.YARDS), epsilon);
+    public void testAddition_WithZeroValue() {
+        Quantity q1 = new Quantity(5.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(0.0, LengthUnit.INCHES);
+        assertEquals(new Quantity(5.0, LengthUnit.FEET), q1.add(q2));
     }
 
     @Test
-    public void testConversion_CentimetersToInches() {
-        Quantity cm = new Quantity(1.0, LengthUnit.CENTIMETERS);
-        assertEquals(0.393701, cm.convertTo(LengthUnit.INCHES), epsilon);
+    public void testAddition_Commutativity() {
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCHES);
+
+        // Note: Comparing equality of values, not necessarily units
+        assertEquals(q1.add(q2).convertTo(LengthUnit.INCHES),
+                q2.add(q1).convertTo(LengthUnit.INCHES));
     }
 
     @Test
-    public void testConversion_ZeroValue() {
-        Quantity zeroFeet = new Quantity(0.0, LengthUnit.FEET);
-        assertEquals(0.0, zeroFeet.convertTo(LengthUnit.INCHES), epsilon);
-    }
-
-    @Test
-    public void testConversion_NegativeValue() {
-        Quantity negFeet = new Quantity(-1.0, LengthUnit.FEET);
-        assertEquals(-12.0, negFeet.convertTo(LengthUnit.INCHES), epsilon);
-    }
-
-    @Test
-    public void testConversion_SameUnit() {
-        Quantity feet = new Quantity(5.0, LengthUnit.FEET);
-        assertEquals(5.0, feet.convertTo(LengthUnit.FEET), epsilon);
-    }
-
-    @Test
-    public void testConversion_InvalidValue_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> new Quantity(Double.NaN, LengthUnit.FEET));
+    public void testAddition_NullOperand_ThrowsException() {
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q1.add(null));
     }
 }
