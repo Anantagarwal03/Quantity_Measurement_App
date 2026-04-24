@@ -6,43 +6,52 @@ import com.apps.quantitymeasurement.QuantityMeasurementApp.Quantity;
 
 public class QuantityMeasurementAppTest {
 
+    private final double epsilon = 0.0001;
+
     @Test
-    public void testEquality_YardToYard_SameValue() {
-        assertEquals(new Quantity(1.0, LengthUnit.YARDS), new Quantity(1.0, LengthUnit.YARDS));
+    public void testConversion_FeetToInches() {
+        Quantity feet = new Quantity(1.0, LengthUnit.FEET);
+        assertEquals(12.0, feet.convertTo(LengthUnit.INCHES), epsilon);
     }
 
     @Test
-    public void testEquality_YardToFeet_EquivalentValue() {
-        // 1 Yard = 3 Feet
-        assertEquals(new Quantity(1.0, LengthUnit.YARDS), new Quantity(3.0, LengthUnit.FEET));
-    }
-
-    @Test
-    public void testEquality_YardToInches_EquivalentValue() {
-        // 1 Yard = 36 Inches
-        assertEquals(new Quantity(1.0, LengthUnit.YARDS), new Quantity(36.0, LengthUnit.INCHES));
-    }
-
-    @Test
-    public void testEquality_CentimetersToInches_EquivalentValue() {
-        // 1 CM = 0.393701 Inches
-        assertEquals(new Quantity(1.0, LengthUnit.CENTIMETERS), new Quantity(0.393701, LengthUnit.INCHES));
-    }
-
-    @Test
-    public void testEquality_MultiUnit_TransitiveProperty() {
+    public void testConversion_YardsToFeet() {
         Quantity yard = new Quantity(1.0, LengthUnit.YARDS);
-        Quantity feet = new Quantity(3.0, LengthUnit.FEET);
-        Quantity inches = new Quantity(36.0, LengthUnit.INCHES);
-
-        assertEquals(yard, feet);
-        assertEquals(feet, inches);
-        assertEquals(yard, inches); // Transitive
+        assertEquals(3.0, yard.convertTo(LengthUnit.FEET), epsilon);
     }
 
     @Test
-    public void testEquality_DifferentValues_ShouldNotBeEqual() {
-        assertNotEquals(new Quantity(1.0, LengthUnit.YARDS), new Quantity(2.0, LengthUnit.FEET));
-        assertNotEquals(new Quantity(1.0, LengthUnit.CENTIMETERS), new Quantity(1.0, LengthUnit.INCHES));
+    public void testConversion_InchesToYards() {
+        Quantity inches = new Quantity(36.0, LengthUnit.INCHES);
+        assertEquals(1.0, inches.convertTo(LengthUnit.YARDS), epsilon);
+    }
+
+    @Test
+    public void testConversion_CentimetersToInches() {
+        Quantity cm = new Quantity(1.0, LengthUnit.CENTIMETERS);
+        assertEquals(0.393701, cm.convertTo(LengthUnit.INCHES), epsilon);
+    }
+
+    @Test
+    public void testConversion_ZeroValue() {
+        Quantity zeroFeet = new Quantity(0.0, LengthUnit.FEET);
+        assertEquals(0.0, zeroFeet.convertTo(LengthUnit.INCHES), epsilon);
+    }
+
+    @Test
+    public void testConversion_NegativeValue() {
+        Quantity negFeet = new Quantity(-1.0, LengthUnit.FEET);
+        assertEquals(-12.0, negFeet.convertTo(LengthUnit.INCHES), epsilon);
+    }
+
+    @Test
+    public void testConversion_SameUnit() {
+        Quantity feet = new Quantity(5.0, LengthUnit.FEET);
+        assertEquals(5.0, feet.convertTo(LengthUnit.FEET), epsilon);
+    }
+
+    @Test
+    public void testConversion_InvalidValue_ThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new Quantity(Double.NaN, LengthUnit.FEET));
     }
 }
