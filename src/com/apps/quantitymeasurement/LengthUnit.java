@@ -1,8 +1,10 @@
 package com.apps.quantitymeasurement;
 
 public enum LengthUnit {
-    FEET(12.0),    // 1 foot = 12 inches
-    INCHES(1.0);   // base unit
+    YARDS(36.0),         // 1 Yard = 3 Feet = 36 Inches
+    FEET(12.0),          // 1 Foot = 12 Inches
+    INCHES(1.0),         // Base Unit
+    CENTIMETERS(0.393701); // 1 cm = 0.393701 Inches
 
     public final double conversionFactor;
 

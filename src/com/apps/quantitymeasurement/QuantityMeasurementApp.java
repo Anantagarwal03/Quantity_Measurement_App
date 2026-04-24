@@ -13,28 +13,28 @@ public class QuantityMeasurementApp {
 
         @Override
         public boolean equals(Object obj) {
-            // 1. Reference Check
             if (this == obj) return true;
-
-            // 2. Null and Type Check
             if (obj == null || getClass() != obj.getClass()) return false;
 
             Quantity other = (Quantity) obj;
 
-            // 3. Conversion Logic (Cross-Unit Equality)
-            double firstValueInInches = this.value * this.unit.conversionFactor;
-            double secondValueInInches = other.value * other.unit.conversionFactor;
+            // Convert both to Inches and compare
+            double value1InInches = this.value * this.unit.conversionFactor;
+            double value2InInches = other.value * other.unit.conversionFactor;
 
-            // 4. Value Comparison
-            return Double.compare(firstValueInInches, secondValueInInches) == 0;
+            // Using a small epsilon (0.0001) is often good for double precision,
+            // but Double.compare works for these fixed factors.
+            return Double.compare(value1InInches, value2InInches) == 0;
         }
     }
 
     public static void main(String[] args) {
-        Quantity feet = new Quantity(1.0, LengthUnit.FEET);
-        Quantity inches = new Quantity(12.0, LengthUnit.INCHES);
+        Quantity yard = new Quantity(1.0, LengthUnit.YARDS);
+        Quantity feet = new Quantity(3.0, LengthUnit.FEET);
+        Quantity cm = new Quantity(1.0, LengthUnit.CENTIMETERS);
+        Quantity inch = new Quantity(0.393701, LengthUnit.INCHES);
 
-        System.out.println("Comparing 1.0 Feet and 12.0 Inches...");
-        System.out.println("Are they equal? " + feet.equals(inches));
+        System.out.println("1 Yard == 3 Feet? " + yard.equals(feet));
+        System.out.println("1 CM == 0.393701 Inches? " + cm.equals(inch));
     }
 }
